@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generative Playground</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    canvas {
+      display: block;
+    }
+    .controls {
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="controls">
+  <label>Density</label>
+  <input type="range" id="density" min="10" max="200" value="80"><br>
+
+  <label>Size</label>
+  <input type="range" id="size" min="2" max="20" value="8"><br>
+
+  <label>Speed</label>
+  <input type="range" id="speed" min="1" max="10" value="3"><br>
+
+  <button onclick="saveCanvas()">Export PNG</button>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let width = window.innerWidth;
+let height = window.innerHeight;
+
+canvas.width = width;
+canvas.height = height;
+
+let particles = [];
+
+function createParticles(count) {
+  particles = [];
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5),
+      vy: (Math.random() - 0.5)
+    });
+  }
+}
+
+function draw() {
+  ctx.fillStyle = "rgba(17,17,17,0.1)";
+  ctx.fillRect(0, 0, width, height);
+
+  let size = document.getElementById("size").value;
+  let speed = document.getElementById("speed").value;
+
+  ctx.fillStyle = "#00ffcc";
+
+  particles.forEach(p => {
+    p.x += p.vx * speed;
+    p.y += p.vy * speed;
+
+    if (p.x < 0 || p.x > width) p.vx *= -1;
+    if (p.y < 0 || p.y > height) p.vy *= -1;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  requestAnimationFrame(draw);
+}
+
+document.getElementById("density").addEventListener("input", (e) => {
+  createParticles(e.target.value);
+});
+
+function saveCanvas() {
+  const link = document.createElement("a");
+  link.download = "art.png";
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+createParticles(80);
+draw();
+</script>
+
+</body>
+</html>
